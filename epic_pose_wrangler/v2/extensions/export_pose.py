@@ -5,6 +5,7 @@ from functools import partial
 from maya import cmds
 from epic_pose_wrangler.log import LOG
 from epic_pose_wrangler.v2.model import base_extension, exceptions, pose_blender
+from epic_pose_wrangler.v2.model import custom_export
 
 from PySide2 import QtWidgets
 
@@ -40,6 +41,7 @@ class ExportPose(base_extension.PoseWranglerExtension):
         temp_filename = get_maya_name_noext()
         self.filename_field.setPlaceholderText(temp_filename)
         filename_layout.addWidget(self.filename_field)
+        self.asset_name = temp_filename
         
         layout.addLayout(filename_layout)
         
@@ -71,14 +73,12 @@ class ExportPose(base_extension.PoseWranglerExtension):
         
         json_checkbox = QtWidgets.QCheckBox("Export as json")
         json_checkbox.setChecked(False)
-        json_checkbox.setEnabled(False)
         horizontal_layout.addWidget(json_checkbox)
         
         layout.addLayout(horizontal_layout)
 
         export_btn = QtWidgets.QPushButton("Export")
         layout.addWidget(export_btn)
-        
         export_btn.clicked.connect(partial(self.on_export, fbx_checkbox, json_checkbox))
         
         return self._view
@@ -92,7 +92,7 @@ class ExportPose(base_extension.PoseWranglerExtension):
 
         if json_check:
             self.export_json()
-            
+
     
     def export_fbx(self, *args):
         if self.filename_field.text() == '':       
@@ -112,7 +112,7 @@ class ExportPose(base_extension.PoseWranglerExtension):
 
 
     def export_json(self, *args):
-        pass
+        custom_export.CustomExporter(self.output_dir, self.asset_name).export()
             
             
     def on_export_complete(self, *args):
@@ -129,5 +129,4 @@ class ExportPose(base_extension.PoseWranglerExtension):
             
         text_field.setText(output_dir)
         self.output_dir = output_dir
-            
         
