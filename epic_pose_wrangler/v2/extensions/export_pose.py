@@ -81,6 +81,11 @@ class ExportPose(base_extension.PoseWranglerExtension):
         layout.addWidget(export_btn)
         export_btn.clicked.connect(partial(self.on_export, fbx_checkbox, json_checkbox))
         
+        # add a batch export button, this will bake and export poses according to solvers list
+        batch_export_btn = QtWidgets.QPushButton("Batch Export")
+        layout.addWidget(batch_export_btn)
+        batch_export_btn.clicked.connect(self.batch_export)
+        
         return self._view
 
     def on_export(self, fbx_check, json_check, *args):
@@ -95,7 +100,7 @@ class ExportPose(base_extension.PoseWranglerExtension):
 
     
     def export_fbx(self, *args):
-        if self.filename_field.text() == '':       
+        if self.filename_field.text() == '': 
             export_name = get_maya_name_noext()
         else:
             export_name = self.filename_field.text()
@@ -129,4 +134,7 @@ class ExportPose(base_extension.PoseWranglerExtension):
             
         text_field.setText(output_dir)
         self.output_dir = output_dir
-        
+
+
+    def batch_export(self):
+        custom_export.CustomExporter(self.output_dir, self.asset_name).batch_export_fbx()
